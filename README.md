@@ -76,23 +76,39 @@ https://dcenhancements.com/archive/outputs/video-gpu/runpod_jobs/my_long_video/i
 https://dcenhancements.com/archive/outputs/video-gpu/runpod_jobs/my_long_video/runpod_inputs.json
 ```
 
-## Orchestrate all prepared segments through RunPod
+## Orchestrate prepared segments through RunPod Queue
+
+Single endpoint, one queued job at a time:
 
 ```bash
 python3 runpod_orchestrate_job.py \
   /srv/apps/website/public/archive/outputs/video-gpu/runpod_jobs/my_long_video/runpod_inputs.json \
   --endpoint-id "$RUNPOD_ENDPOINT_ID" \
-  --mode source
+  --mode source \
+  --parallel 1
 ```
 
-This publishes:
+Multiple endpoints / simple load-balancing:
+
+```bash
+python3 runpod_orchestrate_job.py \
+  /srv/apps/website/public/archive/outputs/video-gpu/runpod_jobs/my_long_video/runpod_inputs.json \
+  --endpoint-id ENDPOINT_A \
+  --endpoint-id ENDPOINT_B \
+  --mode source \
+  --parallel 2 \
+  --per-endpoint-parallel 1 \
+  --retries 1
+```
+
+The orchestrator uses RunPod async Queue (`/run` + `/status/{id}`), so `IN_QUEUE` is handled correctly. It publishes status while jobs are running:
 
 ```text
 gpu_out_seg_001.mp4
 gpu_out_seg_002.mp4
-gpu_partial.mp4 after every finished segment
+gpu_partial.mp4 after contiguous finished segments
 gpu_final.mp4 at the end
-runpod_outputs.html/json status page
+runpod_outputs.html/json status page with completed/inflight/failed sections
 ```
 
 ## DCE local one-segment client dry-run

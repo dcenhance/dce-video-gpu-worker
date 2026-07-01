@@ -17,16 +17,45 @@ from typing import Any
 import requests
 
 
-def endpoint_url(endpoint_id: str, sync: bool) -> str:
-    op = "runsync" if sync else "run"
+def endpoint_url(endpoint_id: str, op: str) -> str:
     return f"https://api.runpod.ai/v2/{endpoint_id}/{op}"
 
 
+def _headers(api_key: str) -> dict[str, str]:
+    return {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
+
+
 def submit_job(payload: dict[str, Any], *, endpoint_id: str, api_key: str, sync: bool = True, timeout: int = 1800) -> dict[str, Any]:
+    op = "runsync" if sync else "run"
     r = requests.post(
-        endpoint_url(endpoint_id, sync),
-        headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
+        endpoint_url(endpoint_id, op),
+        headers=_headers(api_key),
         json={"input": payload},
+        timeout=timeout,
+    )
+    r.raise_for_status()
+    return r.json()
+
+
+def submit_job_async(payload: dict[str, Any], *, endpoint_id: str, api_key: str, timeout: int = 120) -> dict[str, Any]:
+    """Submit to RunPod queue and return the queued job envelope, usually containing id/status."""
+    return submit_job(payload, endpoint_id=endpoint_id, api_key=api_key, sync=False, timeout=timeout)
+
+
+def get_job_status(job_id: str, *, endpoint_id: str, api_key: str, timeout: int = 120) -> dict[str, Any]:
+    r = requests.get(
+        endpoint_url(endpoint_id, f"status/{job_id}"),
+        headers=_headers(api_key),
+        timeout=timeout,
+    )
+    r.raise_for_status()
+    return r.json()
+
+
+def cancel_job(job_id: str, *, endpoint_id: str, api_key: str, timeout: int = 120) -> dict[str, Any]:
+    r = requests.post(
+        endpoint_url(endpoint_id, f"cancel/{job_id}"),
+        headers=_headers(api_key),
         timeout=timeout,
     )
     r.raise_for_status()
