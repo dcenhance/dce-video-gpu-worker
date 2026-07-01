@@ -1,0 +1,10 @@
+runpod==1.7.9
+requests==2.32.3
+numpy==1.24.2
+opencv-python-headless==4.7.0.72
+onnx==1.14.0
+insightface==0.7.3
+onnxruntime-gpu==1.15.0
+pillow==9.5.0
+protobuf==4.23.2
+tqdm==4.65.0
