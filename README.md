@@ -12,6 +12,7 @@ The DCE server should keep doing uploads, public links, queue/status pages, part
 - `prepare_runpod_inputs.py` — DCE-side helper that publishes source + 30s input segment URLs.
 - `runpod_orchestrate_job.py` — DCE-side orchestrator that submits prepared segments to RunPod, publishes GPU outputs, partial MP4, and final concat.
 - `Dockerfile` — CUDA 11.8 runtime image for RunPod.
+- `prefetch_models.py` — downloads the heavy model artifacts into the image during Docker build so first queue jobs do not hang on runtime downloads.
 - `requirements.txt` — pinned runtime deps.
 
 ## Request shape

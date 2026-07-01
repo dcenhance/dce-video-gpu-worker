@@ -23,6 +23,7 @@ import requests
 
 MODEL_URL = "https://huggingface.co/countfloyd/deepfake/resolve/main/inswapper_128.onnx"
 MODEL_DIR = Path(os.getenv("DCE_MODEL_DIR", "/models"))
+INSIGHTFACE_ROOT = Path(os.getenv("DCE_INSIGHTFACE_ROOT", str(MODEL_DIR / "insightface")))
 INSWAPPER_PATH = MODEL_DIR / "inswapper_128.onnx"
 DEFAULT_OUTPUT_FPS = 30.0
 
@@ -156,6 +157,7 @@ def load_models(source: Path, source_face_policy: str):
     prov = providers()
     app = insightface.app.FaceAnalysis(
         name="buffalo_l",
+        root=str(INSIGHTFACE_ROOT),
         providers=prov,
         allowed_modules=["detection", "recognition"],
     )

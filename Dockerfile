@@ -31,10 +31,13 @@ RUN python3 -m pip install --upgrade pip setuptools wheel && \
 
 COPY handler.py /app/handler.py
 COPY dce_gpu_faceswap.py /app/dce_gpu_faceswap.py
+COPY prefetch_models.py /app/prefetch_models.py
 
-# Pre-create model dirs; actual models download lazily during first worker cold start.
+# Preinstall heavy model artifacts during image build, not during first request.
 RUN mkdir -p /models /tmp/dce-video-gpu
 ENV DCE_MODEL_DIR=/models \
+    DCE_INSIGHTFACE_ROOT=/models/insightface \
     DCE_WORK_DIR=/tmp/dce-video-gpu
+RUN python3 /app/prefetch_models.py
 
 CMD ["python3", "-u", "/app/handler.py"]
