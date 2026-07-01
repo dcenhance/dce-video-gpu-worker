@@ -61,6 +61,46 @@ Start simple:
 - Execution timeout: at least 1800s for 30s source segments during early testing
 - Container disk: 20-40GB
 
+## One-command DCE GPU swap
+
+After the RunPod endpoint is created, use the wrapper command from the DCE server:
+
+```bash
+dce-runpod-swap SOURCE_IMAGE TARGET_VIDEO \
+  --name my_job \
+  --parallel 1
+```
+
+Defaults:
+
+```text
+endpoint = askvbho4tgu06s
+mode = source
+segment-seconds = 30
+source-face = largest
+target-face = center
+```
+
+Smoke/dry-run without GPU billing:
+
+```bash
+dce-runpod-swap SOURCE_IMAGE TARGET_VIDEO --name smoke --limit 1 --dry-run
+```
+
+For more throughput after the endpoint is stable, raise RunPod `workersMax` and run:
+
+```bash
+dce-runpod-swap SOURCE_IMAGE TARGET_VIDEO --name my_job --parallel 2
+```
+
+The command prepares public input segments, submits them to RunPod Queue, and publishes:
+
+```text
+https://dcenhancements.com/archive/outputs/video-gpu/runpod_jobs/<name>/runpod_outputs.html
+https://dcenhancements.com/archive/outputs/video-gpu/runpod_jobs/<name>/gpu_partial.mp4
+https://dcenhancements.com/archive/outputs/video-gpu/runpod_jobs/<name>/gpu_final.mp4
+```
+
 ## Prepare public 30s inputs on DCE server
 
 ```bash
